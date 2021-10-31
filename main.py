@@ -21,7 +21,7 @@ class NN:
     Shallow neural network
     """
 
-    def __init__(self, input_dim=8, hidden_dim=3, output_dim=8, lr=0.005):
+    def __init__(self, input_dim=8, hidden_dim=3, output_dim=8, lr=0.01):
         """
         :param x: learning samples, a 2D array of shape (8,8)
         :param y: desired output, a 2D array of shape (8,8)
@@ -38,16 +38,14 @@ class NN:
         self.lr = lr
 
         # nn weights with 1 bias node per layer (except output layer)
-        self.synapse_0 = np.zeros((self.input_dim+1, self.hidden_dim))
-        self.synapse_0[0] = 1
-        self.synapse_1 = np.zeros((self.hidden_dim+1, self.output_dim))
-        self.synapse_1[0] = 1
+        self.synapse_0 = np.random.random((self.input_dim+1, self.hidden_dim))
+        self.synapse_1 = np.random.random((self.hidden_dim+1, self.output_dim))
 
         self.synapse_0_gradients = np.zeros((self.input_dim + 1, self.hidden_dim))
         self.synapse_1_gradients = np.zeros((self.hidden_dim + 1, self.output_dim))
 
     def train(self):
-        for _ in range(20000):
+        for _ in range(10000):
             self.fit()
 
     def test(self):
@@ -55,33 +53,29 @@ class NN:
         n_samples = 8
         for sample in self.input:
             predicted_y, a_hidden_layer = self.forward(sample)
-            if predicted_y.all() == sample.all():
+            if (predicted_y == sample).all():
                 n_correct += 1
 
         print("n_correct = " + str(n_correct))
 
-    def activation(self, x, layer):
+    def activation(self, input, layer):
         """
         Neuron activation is calculated as the weighted sum of the inputs (like linear regression) + sigmoid
         We assume the bias to be the first row of weights connecting an input node that returns 1 with the three hidden nodes
         """
-        # bias
-        weights = self.synapse_0 if layer == 1 else self.synapse_1
-        a = weights[0]
+        if layer == 1:
+            activation = np.zeros((3,))
+            weights = self.synapse_0
 
-        # rest of weights
-        a += np.dot(x, weights[1:]) if layer == 1 else np.dot(x[1:], weights[1:])
+        else:
+            activation = np.zeros((8,))
+            weights = self.synapse_1
+
+        # sum + bias
+        a = np.dot(input, weights[1:]) + weights[0]
 
         # sigmoid transfer
-        if layer == 1:
-            activation = np.zeros((4,))
-            activation[1:] = self.sigmoid(a)
-
-            # add bias at activation to be able to update the gradients of the weights coming from this node
-            # A_l += a_l * delta_l+1
-            activation[0] = 1
-        else:
-            activation = self.sigmoid(a)
+        activation = self.sigmoid(a)
 
         return activation
 
@@ -110,15 +104,19 @@ class NN:
         values = np.zeros((3,))
         for i in range(delta_output_layer.size):
             values += self.synapse_1.T[i, 1:] * delta_output_layer[i]
-        delta_hidden_layer = self.sigmoid_derivative(a_hidden_layer[1:]) * values
+        delta_hidden_layer = self.sigmoid_derivative(a_hidden_layer) * values
 
         return delta_output_layer, delta_hidden_layer
 
     def update_gradients(self, sample, a_hidden_layer, delta_hidden_layer, delta_output_layer):
         """update gradients"""
+        # add bias to input
+        a = np.zeros((4,))
+        a[1:] = a_hidden_layer
+        a[0] = 1
         for j in range(self.hidden_dim + 1):
             for i in range(self.output_dim):
-                self.synapse_1_gradients[j, i] += a_hidden_layer[j] * delta_output_layer[i]
+                self.synapse_1_gradients[j, i] += a[j] * delta_output_layer[i]
 
         # add bias to input
         input = np.zeros((9,))
@@ -156,7 +154,7 @@ class NN:
         print(average_cost/self.input_dim)
 
         # compute cost gradient dJ/dtheta
-        decay_weights = 100  # try 0, 1, 10, 1000, 10000, 1000000
+        decay_weights = 0.001  # try 0, 1, 10, 1000, 10000, 1000000
         cost_gradient_synapse1 = np.zeros(self.synapse_1.shape)
         cost_gradient_synapse0 = np.zeros(self.synapse_0.shape)
         cost_gradient_synapse1[1:, :] = (1 / self.input_dim) * (self.synapse_1_gradients[1:] + decay_weights * self.synapse_1[1:])
@@ -166,8 +164,8 @@ class NN:
         cost_gradient_synapse0[0, :] = (1 / self.input_dim) * self.synapse_0_gradients[0]
 
         # update weights with gradient descent
-        self.synapse_0 = self.synapse_0 - self.lr * cost_gradient_synapse0
-        self.synapse_1 = self.synapse_1 - self.lr * cost_gradient_synapse1
+        self.synapse_0 -= self.lr * cost_gradient_synapse0
+        self.synapse_1 -= self.lr * cost_gradient_synapse1
 
     def sigmoid_derivative(self, z):
         return z * (1 - z)
