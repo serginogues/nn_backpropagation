@@ -66,8 +66,11 @@ class NN:
             if np.argmax(sample) == np.argmax(predicted_y):
                 n_correct += 1
             if print_:
-                print("predicted:", np.argmax(predicted_y))
-                print("label:", np.argmax(sample))
+                v = np.zeros(sample.shape)
+                v[np.argmax(predicted_y)] = 1
+                print("label:", sample)
+                print("predicted:", v)
+
         if n_correct == 8:
             CONVERGED = True
 
