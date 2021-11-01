@@ -1,11 +1,15 @@
 import numpy as np
 
-LR = 0.01  # learning rate
-WD = 0.001  # weight decay
-EPOCHS = 40000
+# Do not change
 INPUT_DIM = 8
 HIDDEN_DIM = 3
 OUTPUT_DIM = 8
+
+# Hyperparams to tune
+LR = 0.01  # learning rate
+WD = 0.001  # weight decay
+EPOCHS = 40000
+
 
 """
 Weight initialization approach
