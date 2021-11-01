@@ -14,6 +14,7 @@ Thus, only 8 learning samples.
 Use Sigmoid as ctivation function because we are doing softmax regression.
 """
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 class NN:
@@ -32,9 +33,8 @@ class NN:
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
         self.output_dim = output_dim
-        self.input = self.generate_samples()
+        self.dataset = self.generate_samples()
         self.y = self.generate_samples()
-        self.output = np.zeros(self.y.shape)
         self.lr = lr
         self.weight_decay = w_d
         self.epochs = epochs
@@ -49,10 +49,10 @@ class NN:
 
     def train(self):
         train = True
-        i = 0
-        while train:
-            i = i+1
-            print("epoch:", i)
+        epoch = 0
+        while train or epoch >= 40000:
+            epoch = epoch+1
+            print("epoch:", epoch)
             self.fit()
             if self.test():
                 train = False
@@ -61,7 +61,7 @@ class NN:
     def test(self, print_=False):
         n_correct = 0
         CONVERGED = False
-        for sample in self.input:
+        for sample in self.dataset:
             predicted_y, a_hidden_layer = self.forward(sample)
             if np.argmax(sample) == np.argmax(predicted_y):
                 n_correct += 1
@@ -82,7 +82,7 @@ class NN:
         self.gradients_1 = np.zeros(self.synapse_1.shape)
         cost = 0
 
-        for sample in self.input:
+        for sample in self.dataset:
             # get rid of the bias parameter
             desired_y = sample
             # sample (i.e.) = [0,1,0,0,0,0,0,0]
