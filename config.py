@@ -5,7 +5,7 @@ OUTPUT_DIM = 8
 EPOCHS = 50000
 
 # Hyperparams to tune
-LR = 0.01  # learning rate
+LR = 0.1  # learning rate
 WD = 0.001  # weight decay
 WEIGHT_INIT = 0
 """

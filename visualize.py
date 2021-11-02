@@ -1,6 +1,7 @@
 from network import NN
 import matplotlib.pyplot as plt
 from config import *
+import numpy as np
 
 
 def plot_all():
@@ -21,8 +22,10 @@ def plot_all():
         configuration += "All weights initialised with random values between 0 and 1"
     print("Plot configuration:", configuration)
     plt.title(titl)
-    plt.show()
+
 
     print("Weights layer 1:", nn.synapse_0)
     print("Weights layer 2:", nn.synapse_1)
     print("Activation values hidden layer", nn.activation_hidden)
+
+    plt.show()
