@@ -2,7 +2,7 @@
 INPUT_DIM = 8
 HIDDEN_DIM = 3
 OUTPUT_DIM = 8
-EPOCHS = 50000
+EPOCHS = 20000
 
 # Hyperparams to tune
 LR = 0.1  # learning rate

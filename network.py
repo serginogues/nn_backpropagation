@@ -59,9 +59,9 @@ class NN:
         epoch = 0
         while train and epoch < EPOCHS:
             epoch = epoch+1
-            # print("epoch:", epoch)
+            print("epoch:", epoch)
             self.fit()
-            if self.test():
+            if epoch % 10 == 0 and self.test():
                 train = False
         self.epochs_run = epoch
         self.test(True)
@@ -69,15 +69,23 @@ class NN:
     def test(self, print_=False):
         n_correct = 0
         CONVERGED = False
-        for sample in self.dataset:
+        if print_:
+            print('')
+
+        for i, sample in enumerate(self.dataset):
             predicted_y, a_hidden_layer = self.forward(sample)
             if np.argmax(sample) == np.argmax(predicted_y):
                 n_correct += 1
             if print_:
                 v = np.zeros(sample.shape)
                 v[np.argmax(predicted_y)] = 1
-                print("label:", sample)
-                print("predicted:", v)
+                print(str(i) + ":")
+                print("label:")
+                print(sample)
+                print("predicted:")
+                print(v)
+        if print_:
+            print("Number of correct classes:", n_correct)
 
         if n_correct == 8:
             CONVERGED = True
